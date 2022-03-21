@@ -6,22 +6,21 @@ require_relative 'lib/disk'
 
 choice = 1
 purchases = []
-products_collection = ProductCollection.from_dir(__dir__).to_a
+products_collection = ProductCollection.from_dir(__dir__)
+products_collection.sort!(key: :title)
 
 until choice.zero?
   puts 'Вот какие товары у нас есть:'
   puts
 
-  products_collection.each.with_index(1) do |product, index|
-    puts "#{index}. #{product}"
-  end
+  puts products_collection.to_s
   puts '0. Выход'
   puts
 
   choice = gets.to_i
 
-  if choice.between?(1, products_collection.size)
-    product = products_collection[choice - 1]
+  if choice.between?(1, products_collection.to_a.size)
+    product = products_collection.to_a[choice - 1]
     purchases << product
     product.quantity -= 1
     choice = 1

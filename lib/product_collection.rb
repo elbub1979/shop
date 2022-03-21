@@ -3,12 +3,13 @@ class ProductCollection
 
   class << self
     def from_dir(dirname)
-      paths_collections = Dir.glob(File.join(dirname, 'data/*/*'))
+      paths_collection = Dir.glob(File.join(dirname, 'data/*/*'))
       products_type = Product.product_types
-      paths_collections.map do |path|
+      products_collection = paths_collection.map do |path|
         key = path.split('/')[-2].to_sym
         products_type[key].from_file(path)
       end
+      new(products_collection)
     end
   end
 
@@ -16,19 +17,24 @@ class ProductCollection
     @products_collections = products_collections
   end
 
-  def to_a
-    @products_collections.to_a
+  def to_s
+    @products_collections.map.with_index(1) do |product, index|
+      "#{index}: #{product}"
+    end
   end
 
-  def sort(params)
-    collection = to_a
-    case params[:key]
-    when :price then collection.sort_by!(&:price)
-    when :quantity then collection.sort_by!(&:quantity)
-    when :title then collection.sort_by!(&:title)
-    end
-    collection.reverse! if params[:order] == :asc
+  def to_a
+    @products_collections
+  end
 
-    collection
+  def sort!(params)
+    case params[:key]
+    when :price then @products_collections.sort_by!(&:price)
+    when :quantity then @products_collections.sort_by!(&:quantity)
+    when :title then @products_collections.sort_by!(&:to_s)
+    end
+    reverse! if params[:order] == :desc
+
+    self
   end
 end
